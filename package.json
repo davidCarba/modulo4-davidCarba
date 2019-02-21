@@ -1,0 +1,29 @@
+{
+  "name": "modulo4-davidCarba",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/davidCarba/modulo4-davidCarba.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/davidCarba/modulo4-davidCarba/issues"
+  },
+  "homepage": "https://github.com/davidCarba/modulo4-davidCarba#readme",
+  "devDependencies": {
+    "dotenv": "^6.2.0",
+    "eslint": "^5.9.0",
+    "eslint-config-airbnb": "^17.1.0",
+    "eslint-config-airbnb-base": "^13.1.0",
+    "eslint-plugin-import": "^2.14.0",
+    "eslint-plugin-security": "^1.4.0",
+    "nodemon": "^1.18.10"
+  }
+}
