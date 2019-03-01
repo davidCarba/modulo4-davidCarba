@@ -42,8 +42,9 @@ async function insertUserIntoDatabase(email, password) {
   console.log('uuid', uuid);
 
   const connection = await mysqlPool.getConnection();
+  const sqlQuery = 'INSERT INTO users SET ?';
 
-  await connection.query('INSERT INTO users SET ?', {
+  await connection.query(sqlQuery, {
     uuid,
     email,
     password: securePassword,
