@@ -5,25 +5,9 @@ const Joi = require('joi');
 const sendgridMail = require('@sendgrid/mail');
 const uuidV4 = require('uuid/v4');
 const mysqlPool = require('../../../databases/mysql-pool');
+const UserModel = require('../../../models/user-model');
 
 sendgridMail.setApiKey(process.env.SENGRID_API_KEY);
-
-async function validateSchema(payload) {
-  /**
-   * TODO: Fill email, password and full name rules to be (all fields are mandatory):
-   *  email: Valid email
-   *  password: Letters (upper and lower case) and number
-   *    Minimun 3 and max 30 characters, using next regular expression: /^[a-zA-Z0-9]{3,30}$/
-   * fullName: String with 3 minimun characters and max 128
-   */
-  const schema = {
-    email: Joi.string().email({ minDomainAtoms: 2 }).required(),
-    password: Joi.string().regex(/^[a-zA-Z0-9]{3,30}$/).required(),
-    // fullName: rules.fullName,
-  };
-
-  return Joi.validate(payload, schema);
-}
 
 /**
  * Insert the user into the database generating an uuid and calculating the bcrypt password
@@ -42,9 +26,8 @@ async function insertUserIntoDatabase(email, password) {
   console.log('uuid', uuid);
 
   const connection = await mysqlPool.getConnection();
-  const sqlQuery = 'INSERT INTO users SET ?';
 
-  await connection.query(sqlQuery, {
+  await connection.query('INSERT INTO users SET ?', {
     uuid,
     email,
     password: securePassword,
@@ -76,6 +59,30 @@ async function addVerificationCode(uuid) {
   return verificationCode;
 }
 
+async function createUserProfile(uuid) {
+  const userProfileData = {
+    uuid,
+    avatarUrl: null,
+    fullName: null,
+    preferences: {
+      isPublicProfile: false,
+      linkedIn: null,
+      twitter: null,
+      github: null,
+      description: null,
+    },
+  };
+
+  try {
+    const userCreated = await UserModel.create(userProfileData);
+
+    console.log(userCreated);
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+
 /**
  * Send an email with a verification link to the user to activate the account
  * @param {String} userEmail
@@ -99,7 +106,24 @@ async function sendEmailRegistration(userEmail, verificationCode) {
   return data;
 }
 
-async function create(req, res, next) {
+async function validateSchema(payload) {
+  /**
+   * TODO: Fill email, password and full name rules to be (all fields are mandatory):
+   *  email: Valid email
+   *  password: Letters (upper and lower case) and number
+   *    Minimun 3 and max 30 characters, using next regular expression: /^[a-zA-Z0-9]{3,30}$/
+   * fullName: String with 3 minimun characters and max 128
+   */
+  const schema = {
+    email: Joi.string().email({ minDomainAtoms: 2 }).required(),
+    password: Joi.string().regex(/^[a-zA-Z0-9]{3,30}$/).required(),
+    // fullName: rules.fullName,
+  };
+
+  return Joi.validate(payload, schema);
+}
+
+async function create (req, res, next) {
   const accountData = { ...req.body };
 
   /**
@@ -124,6 +148,8 @@ async function create(req, res, next) {
      */
     const uuid = await insertUserIntoDatabase(email, password);
     res.status(204).json();
+
+    await createUserProfile(uuid);
 
     /**
      * Generate verification code and send email

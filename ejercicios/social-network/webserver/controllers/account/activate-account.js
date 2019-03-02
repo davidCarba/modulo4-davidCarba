@@ -7,17 +7,16 @@ async function activate(req, res, next) {
 
   if (!verificationCode) {
     return res.status(400).json({
-      message: 'Invalid verification code',
+      message: 'invalid verification code',
       target: 'verification_code',
     });
   }
 
   const now = new Date();
-
   const sqlActivateQuery = `UPDATE users_activation
-  SET verified_at = '${now.toISOString().substring(0, 19).replace('T', ' ')}'
-  WHERE verification_code='${verificationCode}'
-  AND verified_at IS NULL`;
+SET verified_at = '${now.toISOString().substring(0, 19).replace('T', ' ')}'
+WHERE verification_code='${verificationCode}'
+AND verified_at IS NULL`;
 
   try {
     const connection = await mysqlPool.getConnection();
@@ -33,6 +32,7 @@ async function activate(req, res, next) {
 
       const resultActivateUser = await connection.query(sqlActivateUserQuery);
       if (resultActivateUser[0].affectedRows === 1) {
+        connection.release();
         return res.send('account activated');
       }
       /*
