@@ -18,7 +18,7 @@ async function post(req, res, next) {
   try {
     await validate(postData);
   } catch (error) {
-    res.status().send(error);
+    res.status(400).send(error);
   }
 
   const data = {

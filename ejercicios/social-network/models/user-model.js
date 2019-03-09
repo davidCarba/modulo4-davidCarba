@@ -21,6 +21,15 @@ const userSchema = new Schema({
   },
 });
 
+userSchema.index(
+  {
+    fullName: 'text',
+    'preferences.linkedin': 'text',
+    'preferences.twitter': 'text',
+    'preferences.github': 'text',
+  },
+);
+
 // var Tank = mongoose.model('Tank', schema);
 const User = mongoose.model('User', userSchema);
 
