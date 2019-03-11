@@ -37,7 +37,7 @@ app.use('/api', routes.accountRouter);
 app.use('/api', routes.userRouter);
 
 app.use('*', (req, res, send) => res.status(404).send({
-  message: 'Se siente, tus amigos no estan aqui',
+  message: 'No se encontro la ruta, comprueba tus routes',
 }));
 
 /**
@@ -55,7 +55,7 @@ app.use((err, req, res, next) => {
  * @param {Number} port
  */
 async function listen(port) {
-  if (server === null) {
+  if (server === null) {
     server = await app.listen(port);
   } else {
     console.error("Can't listen, server already initialized");
